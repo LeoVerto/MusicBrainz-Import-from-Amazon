@@ -59,6 +59,7 @@
                         <tracks data-ng-repeat="track in disc.tracks" track by $index>
                             <input type="hidden" name="mediums.{{ $parent.$index }}.track.{{ $index }}.number" value="{{ track.number }}"/>
                             <input type="hidden" name="mediums.{{ $parent.$index }}.track.{{ $index }}.name" value="{{ track.title }}"/>
+                            <input type="hidden" name="mediums.{{ $parent.$index }}.track.{{ $index }}.artist_credit.names.0.name" value="{{ track.artist_credit }}"/>
                             <input type="hidden" name="mediums.{{ $parent.$index }}.track.{{ $index }}.length" value="{{ track.length }}"/>
                         </tracks>
                     </discs>

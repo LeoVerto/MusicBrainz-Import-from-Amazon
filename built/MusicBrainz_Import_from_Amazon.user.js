@@ -26,9 +26,14 @@ if (jquery('#rightCol').length) {
     jquery('.buyingDetailsGrid').prepend(
         '<tr><td><data-gore-mbifa-bootstrap data-ng-app="goreMbifa" data-ng-controller="mbifaController"></td></tr>'
     );
+} else if (jquery('#dmusic_buy_box_group').length) {
+    jquery('#dmusic_buy_box_group').prepend(
+        '<data-gore-mbifa-bootstrap data-ng-app="goreMbifa" data-ng-controller="mbifaController">'
+    );
 }
 
 var goreMbifa = angular.module('goreMbifa', []);
+
 
 goreMbifa.constant('config', {
     'sites': {
@@ -194,6 +199,7 @@ goreMbifa.directive('goreMbifaBootstrap', function () {
                         <tracks data-ng-repeat="track in disc.tracks" track by $index>
                             <input type="hidden" name="mediums.{{ $parent.$index }}.track.{{ $index }}.number" value="{{ track.number }}"/>
                             <input type="hidden" name="mediums.{{ $parent.$index }}.track.{{ $index }}.name" value="{{ track.title }}"/>
+                            <input type="hidden" name="mediums.{{ $parent.$index }}.track.{{ $index }}.artist_credit.names.0.name" value="{{ track.artist_credit }}"/>
                             <input type="hidden" name="mediums.{{ $parent.$index }}.track.{{ $index }}.length" value="{{ track.length }}"/>
                         </tracks>
                     </discs>
@@ -222,6 +228,7 @@ goreMbifa.directive('goreMbifaBootstrap', function () {
             </div>`
     };
 });
+
 
 goreMbifa.controller('mbifaController', function ($scope, $http, config, dataCollectorService) {
     var data = dataCollectorService.collectData();
@@ -288,6 +295,8 @@ goreMbifa.service('dataCollectorService', function (config, siteLookupService, l
             title = jquery('#productTitle').text().trim();
         } else if (jquery('.buying').length) {
             title = jquery('#btAsinTitle span').clone().find('span').remove().end().html().trim();
+        } else if (jquery('#title_feature_div').length) {
+            title = jquery('#title_feature_div h1').text().trim();
         }
 
         var artist = '';
@@ -295,7 +304,9 @@ goreMbifa.service('dataCollectorService', function (config, siteLookupService, l
         if (jquery('.author a').length) {
             artist = jquery('.author a').text().trim();
         } else if (jquery('.buying').length) {
-            artist = jquery('.buying span a').html().trim()
+            artist = jquery('.buying span a').html().trim();
+        } else if (jquery('#ProductInfoArtistLink').length) {
+            artist = jquery('#ProductInfoArtistLink').text().trim();
         }
 
         return {
@@ -380,6 +391,13 @@ goreMbifa.service('dataCollectorService', function (config, siteLookupService, l
                         'title': trackDetails[1].getElementsByClassName('TitleLink')[0].textContent.trim(),
                         'length': trackDetails[2].getElementsByTagName("span")[0].textContent.trim()
                     });
+                } else if (trackDetails[0].getElementsByClassName('AlwaysShowTrackNumberEvenOnHover')[0]) {
+                    tracks['tracks'].push({
+                        'number': trackDetails[0].getElementsByClassName('AlwaysShowTrackNumberEvenOnHover')[0].textContent.trim(),
+                        'title': trackDetails[1].getElementsByClassName('TitleLink')[0].textContent.trim(),
+                        'artist_credit': trackDetails[1].getElementsByClassName('ArtistLink')[0].textContent.trim(),
+                        'length': trackDetails[2].getElementsByTagName("span")[0].textContent.trim()
+                    });
                 }
             }
         } else if (jquery('#dmusic_tracklist_player').length) {
@@ -446,6 +464,7 @@ goreMbifa.service('dataCollectorService', function (config, siteLookupService, l
         return tracklist;
     }
 });
+
 
 goreMbifa.factory('languageLookupService', function () {
     var navLocale = jquery('header').attr('class').split(' ')[1];

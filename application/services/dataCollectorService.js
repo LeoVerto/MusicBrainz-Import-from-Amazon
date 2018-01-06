@@ -8,6 +8,8 @@
             title = jquery('#productTitle').text().trim();
         } else if (jquery('.buying').length) {
             title = jquery('#btAsinTitle span').clone().find('span').remove().end().html().trim();
+        } else if (jquery('#title_feature_div').length) {
+            title = jquery('#title_feature_div h1').text().trim();
         }
 
         var artist = '';
@@ -15,7 +17,9 @@
         if (jquery('.author a').length) {
             artist = jquery('.author a').text().trim();
         } else if (jquery('.buying').length) {
-            artist = jquery('.buying span a').html().trim()
+            artist = jquery('.buying span a').html().trim();
+        } else if (jquery('#ProductInfoArtistLink').length) {
+            artist = jquery('#ProductInfoArtistLink').text().trim();
         }
 
         return {
@@ -98,6 +102,13 @@
                     tracks['tracks'].push({
                         'number': trackDetails[0].getElementsByClassName('TrackNumber')[0].textContent.trim(),
                         'title': trackDetails[1].getElementsByClassName('TitleLink')[0].textContent.trim(),
+                        'length': trackDetails[2].getElementsByTagName("span")[0].textContent.trim()
+                    });
+                } else if (trackDetails[0].getElementsByClassName('AlwaysShowTrackNumberEvenOnHover')[0]) {
+                    tracks['tracks'].push({
+                        'number': trackDetails[0].getElementsByClassName('AlwaysShowTrackNumberEvenOnHover')[0].textContent.trim(),
+                        'title': trackDetails[1].getElementsByClassName('TitleLink')[0].textContent.trim(),
+                        'artist_credit': trackDetails[1].getElementsByClassName('ArtistLink')[0].textContent.trim(),
                         'length': trackDetails[2].getElementsByTagName("span")[0].textContent.trim()
                     });
                 }

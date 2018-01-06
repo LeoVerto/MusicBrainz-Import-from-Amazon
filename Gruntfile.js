@@ -37,7 +37,7 @@ module.exports = function (grunt) {
                     'application/controllers/mbifaController.js', 
                     'application/services/dataCollectorService.js',
                     'application/services/languageLookupService.js',
-                    'application/services/siteLookUpService.js'
+                    'application/services/siteLookupService.js'
                 ],
                 dest: 'built/MusicBrainz_Import_from_Amazon.user.js'
             }
