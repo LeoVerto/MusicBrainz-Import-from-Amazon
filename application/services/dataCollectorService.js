@@ -8,6 +8,8 @@ goreMbifa.service('dataCollectorService', function (config, siteLookupService, l
       title = jquery('#productTitle').text().trim()
     } else if (jquery('.buying').length) {
       title = jquery('#btAsinTitle span').clone().find('span').remove().end().html().trim()
+    } else if (jquery('[data-feature-name="dmusicProductTitle"]').length) {
+      title = jquery('[data-feature-name="dmusicProductTitle"]').text().trim()
     } else {
       console.error('failed to find title')
     }
@@ -18,6 +20,8 @@ goreMbifa.service('dataCollectorService', function (config, siteLookupService, l
       artist = jquery('.author a').text().trim()
     } else if (jquery('.buying').length) {
       artist = jquery('.buying span a').html().trim()
+    } else if (jquery('[data-feature-name="artistLink"]').length) {
+      artist = jquery('[data-feature-name="artistLink"]').text().trim()
     } else {
       console.error('failed to find artist')
     }
