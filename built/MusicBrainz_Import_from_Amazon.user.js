@@ -1,11 +1,10 @@
 // ==UserScript==
 // @name        MusicBrainz: Import from Amazon
-// @namespace   https://github.com/Goram/MusicBrainz-Import-from-Amazon
+// @namespace   https://github.com/Shuunen/MusicBrainz-Import-from-Amazon
 // @include     *://www.amazon.*
-// @version     0.98.5
+// @version     0.98.6
 // @grant       none
-// @author      Gore (based on https://github.com/dufferzafar/Userscripts)
-// @description Import releases from Amazon
+// @author      Gore (based on github.com/dufferzafar/Userscripts, github.com/Goram/MusicBrainz-Import-from-Amazon & LeoVerto/MusicBrainz-Import-from-Amazon)// @description Import releases from Amazon
 // @require     https://code.jquery.com/jquery-2.2.3.min.js
 // @require     https://code.jquery.com/ui/1.11.4/jquery-ui.min.js
 // @require     https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular.min.js
@@ -14,134 +13,133 @@
 
 'use strict';
 
-var jquery = {};
+var jquery = {}
 
-jquery = jQuery.noConflict(true);
+jquery = jQuery.noConflict(true)
+
+var mbifaCtrl = '<data-gore-mbifa-bootstrap data-ng-app="goreMbifa" data-ng-controller="mbifaController">'
 
 if (jquery('#rightCol').length) {
-    jquery('#rightCol').prepend(
-        '<data-gore-mbifa-bootstrap data-ng-app="goreMbifa" data-ng-controller="mbifaController">'
-    );
+  jquery('#rightCol').prepend(mbifaCtrl)
 } else if (jquery('.buyingDetailsGrid').length) {
-    jquery('.buyingDetailsGrid').prepend(
-        '<tr><td><data-gore-mbifa-bootstrap data-ng-app="goreMbifa" data-ng-controller="mbifaController"></td></tr>'
-    );
-} else if (jquery('#dmusic_buy_box_group').length) {
-    jquery('#dmusic_buy_box_group').prepend(
-        '<data-gore-mbifa-bootstrap data-ng-app="goreMbifa" data-ng-controller="mbifaController">'
-    );
+  jquery('.buyingDetailsGrid').prepend('<tr><td>' + mbifaCtrl + '</td></tr>')
+} if (jquery('#dmusic_buy_box_group').length) {
+  jquery('#dmusic_buy_box_group').prepend(mbifaCtrl)
+} else {
+  console.error('found no dom element to attach')
 }
 
-var goreMbifa = angular.module('goreMbifa', []);
+
+var goreMbifa = angular.module('goreMbifa', [])
 
 
 goreMbifa.constant('config', {
-    'sites': {
-        'www.amazon.de': {
-            'languages': {
-                'de': {
-                    'months': { 'Januar': '1', 'Februar': '2', 'März': '3', 'April': '4', 'Mai': '5', 'Juni': '6', 'Juli': '7', 'August': '8', 'September': '9', 'Oktober': '10', 'November': '11', 'Dezember': '12' },
-                    'disc': 'Disk',
-                    'releaseDateOrder': [0, 1, 2],
-                    'regexReleaseDate': /Audio CD  \((.*)\)/,
-                    'regexNumDiscs': /Anzahl Disks\/Tonträger: (.*)/,
-                    'regexReleaseLabel': /Label: (.*)/
-                }
-            }
-        },
-        'www.amazon.com': {
-            'languages': {
-                'en': {
-                    'months': { 'January': '1', 'February': '2', 'March': '3', 'April': '4', 'May': '5', 'June': '6', 'July': '7', 'August': '8', 'September': '9', 'October': '10', 'November': '11', 'December': '12' },
-                    'disc': 'Disc',
-                    'releaseDateOrder': [1, 0, 2],
-                    'regexReleaseDate': /Audio CD  \((.*)\)/,
-                    'regexNumDiscs': /Number of Discs: (.*)/,
-                    'regexReleaseLabel': /Label: (.*)/
-                }
-            }
-        },
-        'www.amazon.co.uk': {
-            'languages': {
-                'en': {
-                    'months': { 'Jan.': '1', 'Feb.': '2', 'March': '3', 'April': '4', 'May': '5', 'June': '6', 'July': '7', 'Aug.': '8', 'Sept.': '9', 'Oct.': '10', 'Nov.': '11', 'Dec': '12' },
-                    'disc': 'Disc',
-                    'releaseDateOrder': [0, 1, 2],
-                    'regexReleaseDate': /Audio CD  \((.*)\)/,
-                    'regexNumDiscs': /Number of Discs: (.*)/,
-                    'regexReleaseLabel': /Label: (.*)/
-                }
-            }
-        },
-        'www.amazon.ca': {
-            'languages': {
-                'en': {
-                    'months': { 'Jan': '1', 'Feb': '2', 'March': '3', 'April': '4', 'May': '5', 'June': '6', 'July': '7', 'Aug': '8', 'Sept': '9', 'Oct': '10', 'Nov': '11', 'Dec': '12' },
-                    'disc': 'Disc',
-                    'releaseDateOrder': [1, 0, 2],
-                    'regexReleaseDate': /Audio CD  \((.*)\)/,
-                    'regexNumDiscs': /Number of Discs: (.*)/,
-                    'regexReleaseLabel': /Label: (.*)/
-                },
-                'fr': {
-                    'months': { 'janvier': '1', 'février': '2', 'mars': '3', 'avril': '4', 'mai': '5', 'juin': '6', 'juillet': '7', 'août': '8', 'septembre': '9', 'octobre': '10', 'novembre': '11', 'décembre': '12' },
-                    'disc': 'Disc',
-                    'releaseDateOrder': [0, 1, 2],
-                    'regexReleaseDate': /Audio CD  \((.*)\)/,
-                    'regexNumDiscs': /Quantité de disques : (.*)/,
-                    'regexReleaseLabel': /Étiquette : (.*)/
-                }
-            }
-        },
-        'www.amazon.fr': {
-            'languages': {
-                'fr': {
-                    'months': { 'janvier': '1', 'février': '2', 'mars': '3', 'avril': '4', 'mai': '5', 'juin': '6', 'juillet': '7', 'août': '8', 'septembre': '9', 'octobre': '10', 'novembre': '11', 'décembre': '12' },
-                    'disc': 'Disc',
-                    'releaseDateOrder': [0, 1, 2],
-                    'regexReleaseDate': /CD  \((.*)\)/,
-                    'regexNumDiscs': /Nombre de disques: (.*)/,
-                    'regexReleaseLabel': /Label: (.*)/
-                }
-            }
+  'sites': {
+    'www.amazon.de': {
+      'languages': {
+        'de': {
+          'months': { 'Januar': '1', 'Februar': '2', 'März': '3', 'April': '4', 'Mai': '5', 'Juni': '6', 'Juli': '7', 'August': '8', 'September': '9', 'Oktober': '10', 'November': '11', 'Dezember': '12' },
+          'disc': 'Disk',
+          'releaseDateOrder': [0, 1, 2],
+          'regexReleaseDate': /Audio CD  \((.*)\)/,
+          'regexNumDiscs': /Anzahl Disks\/Tonträger: (.*)/,
+          'regexReleaseLabel': /Label: (.*)/
         }
+      }
     },
-    'form': {
-        'method': 'post',
-        'action': 'https://musicbrainz.org/release/add',
-        'acceptCharset': 'UTF-8',
-        'primaryType': {
-            'name': 'type',
-            'types': [
-                {'key': '', 'value': 'Primary Type'},
-                {'key': 'Album', 'value': 'Album'},
-                {'key': 'Single', 'value': 'Single'},
-                {'key': 'EP', 'value': 'EP'},
-                {'key': 'Broadcast', 'value': 'Broadcast'},
-                {'key': 'Other', 'value': 'Other'}
-            ]
+    'www.amazon.com': {
+      'languages': {
+        'en': {
+          'months': { 'January': '1', 'February': '2', 'March': '3', 'April': '4', 'May': '5', 'June': '6', 'July': '7', 'August': '8', 'September': '9', 'October': '10', 'November': '11', 'December': '12' },
+          'disc': 'Disc',
+          'releaseDateOrder': [1, 0, 2],
+          'regexReleaseDate': /Audio CD  \((.*)\)/,
+          'regexNumDiscs': /Number of Discs: (.*)/,
+          'regexReleaseLabel': /Label: (.*)/
+        }
+      }
+    },
+    'www.amazon.co.uk': {
+      'languages': {
+        'en': {
+          'months': { 'Jan.': '1', 'Feb.': '2', 'March': '3', 'April': '4', 'May': '5', 'June': '6', 'July': '7', 'Aug.': '8', 'Sept.': '9', 'Oct.': '10', 'Nov.': '11', 'Dec': '12' },
+          'disc': 'Disc',
+          'releaseDateOrder': [0, 1, 2],
+          'regexReleaseDate': /Audio CD  \((.*)\)/,
+          'regexNumDiscs': /Number of Discs: (.*)/,
+          'regexReleaseLabel': /Label: (.*)/
+        }
+      }
+    },
+    'www.amazon.ca': {
+      'languages': {
+        'en': {
+          'months': { 'Jan': '1', 'Feb': '2', 'March': '3', 'April': '4', 'May': '5', 'June': '6', 'July': '7', 'Aug': '8', 'Sept': '9', 'Oct': '10', 'Nov': '11', 'Dec': '12' },
+          'disc': 'Disc',
+          'releaseDateOrder': [1, 0, 2],
+          'regexReleaseDate': /Audio CD  \((.*)\)/,
+          'regexNumDiscs': /Number of Discs: (.*)/,
+          'regexReleaseLabel': /Label: (.*)/
         },
-        'editNode': 'Release added using the MB-Import-From-Amazon userscript from page: '
+        'fr': {
+          'months': { 'janvier': '1', 'février': '2', 'mars': '3', 'avril': '4', 'mai': '5', 'juin': '6', 'juillet': '7', 'août': '8', 'septembre': '9', 'octobre': '10', 'novembre': '11', 'décembre': '12' },
+          'disc': 'Disc',
+          'releaseDateOrder': [0, 1, 2],
+          'regexReleaseDate': /Audio CD  \((.*)\)/,
+          'regexNumDiscs': /Quantité de disques : (.*)/,
+          'regexReleaseLabel': /Étiquette : (.*)/
+        }
+      }
     },
-    'link': {
-        'href': 'https://musicbrainz.org/search',
-        'type': 'release',
-        'limit': '25',
-        'method': 'direct'
+    'www.amazon.fr': {
+      'languages': {
+        'fr': {
+          'months': { 'janvier': '1', 'février': '2', 'mars': '3', 'avril': '4', 'mai': '5', 'juin': '6', 'juillet': '7', 'août': '8', 'septembre': '9', 'octobre': '10', 'novembre': '11', 'décembre': '12' },
+          'disc': 'Disc',
+          'releaseDateOrder': [0, 1, 2],
+          'regexReleaseDate': /CD  \((.*)\)/,
+          'regexNumDiscs': /Nombre de disques: (.*)/,
+          'regexReleaseLabel': /Label: (.*)/
+        }
+      }
     }
-});
+  },
+  'form': {
+    'method': 'post',
+    'action': 'https://musicbrainz.org/release/add',
+    'acceptCharset': 'UTF-8',
+    'primaryType': {
+      'name': 'type',
+      'types': [
+        { 'key': '', 'value': 'Primary Type' },
+        { 'key': 'Album', 'value': 'Album' },
+        { 'key': 'Single', 'value': 'Single' },
+        { 'key': 'EP', 'value': 'EP' },
+        { 'key': 'Broadcast', 'value': 'Broadcast' },
+        { 'key': 'Other', 'value': 'Other' }
+      ]
+    },
+    'editNode': 'Release added using the MB-Import-From-Amazon userscript from page: '
+  },
+  'link': {
+    'href': 'https://musicbrainz.org/search',
+    'type': 'release',
+    'limit': '25',
+    'method': 'direct'
+  }
+})
 
 goreMbifa.config(function ($sceDelegateProvider) {
-    $sceDelegateProvider.resourceUrlWhitelist([
-      'https://musicbrainz.org/**'
-    ]);
-});
+  $sceDelegateProvider.resourceUrlWhitelist([
+    'https://musicbrainz.org/**'
+  ])
+})
 
 
 goreMbifa.directive('goreMbifaBootstrap', function () {
-    return {
-        template:
-           `<style>
+  return {
+    template:
+      `<style>
                 #gorembifa-app {
                     border: 1px solid #ddd;
                     border-radius: 4px;
@@ -226,250 +224,238 @@ goreMbifa.directive('goreMbifaBootstrap', function () {
                     </div>
                 </div>
             </div>`
-    };
-});
+  }
+})
 
 
 goreMbifa.controller('mbifaController', function ($scope, $http, config, dataCollectorService) {
-    var data = dataCollectorService.collectData();
-    var documentLocationHref = document.location.href.split('?')[0]
+  var data = dataCollectorService.collectData()
+  console.info('here is the data that will be submitted to MusicBrainz', data)
+  var documentLocationHref = document.location.href.split('?')[0]
 
-    $scope.form = {
-        'method': config.form.method,
-        'action': config.form.action,
-        'acceptCharset': config.form.acceptCharset,
-        'primaryType': {
-            'name': config.form.primaryType.name,
-            'types': config.form.primaryType.types,
-            'selectedType': config.form.primaryType.types[0]
-        },
-        'title': data['title'],
-        'artist': data['artist'],
-        'status': 'official',
-        'releaseDate': data['releaseDate'],
-        'label': data['label'],
-        'externalLinkType': '77',
-        'asin': documentLocationHref,
-        'tracklist': data['tracklist'],
-        'editNote': config.form.editNode + documentLocationHref
-    };
-
-    $scope.link = {
-        'href': config.link.href,
-        'query': encodeURIComponent(data['title']),
-        'type': config.link.type,
-        'limit': config.link.limit,
-        'method': config.link.method
-    };
-
-    $scope.searchIndexed = {
-        'releases':{},
-        'error': false
-    }
-
-    $http({
-        method: 'GET',
-        url: 'https://musicbrainz.org/ws/2/release?query=' + encodeURIComponent(data['title']) + '&fmt=json'
-    }).then(
-    function (response) {
-        $scope.searchIndexed.releases = response.data.releases;
+  $scope.form = {
+    'method': config.form.method,
+    'action': config.form.action,
+    'acceptCharset': config.form.acceptCharset,
+    'primaryType': {
+      'name': config.form.primaryType.name,
+      'types': config.form.primaryType.types,
+      'selectedType': config.form.primaryType.types[0]
     },
-    function (response) {
-        $scope.searchIndexed.error = true;
-    });
+    'title': data['title'],
+    'artist': data['artist'],
+    'status': 'official',
+    'releaseDate': data['releaseDate'],
+    'label': data['label'],
+    'externalLinkType': '77',
+    'asin': documentLocationHref,
+    'tracklist': data['tracklist'],
+    'editNote': config.form.editNode + documentLocationHref
+  }
 
-    jquery('#search-indexed').accordion({
-        heightStyle: 'content',
-        active: false,
-        collapsible: true
-    });
+  $scope.link = {
+    'href': config.link.href,
+    'query': encodeURIComponent(data['title']),
+    'type': config.link.type,
+    'limit': config.link.limit,
+    'method': config.link.method
+  }
+
+  $scope.searchIndexed = {
+    'releases': {},
+    'error': false
+  }
+
+  var url = 'https://musicbrainz.org/ws/2/release?query=' + encodeURIComponent(data['title']) + '&fmt=json'
+  $http({ method: 'GET', url })
+    .then(function (response) { $scope.searchIndexed.releases = response.data.releases }, function () { $scope.searchIndexed.error = true })
+
+  jquery('#search-indexed').accordion({
+    heightStyle: 'content',
+    active: false,
+    collapsible: true
+  })
 });
 
+
 goreMbifa.service('dataCollectorService', function (config, siteLookupService, languageLookupService) {
-    this.collectData = function () {
-        var siteSpecificConfig = config.sites[siteLookupService].languages[languageLookupService]
+  this.collectData = function () {
+    var siteSpecificConfig = config.sites[siteLookupService].languages[languageLookupService]
 
-        var title = '';
+    var title = ''
 
-        if (jquery('#productTitle').length) {
-            title = jquery('#productTitle').text().trim();
-        } else if (jquery('.buying').length) {
-            title = jquery('#btAsinTitle span').clone().find('span').remove().end().html().trim();
-        } else if (jquery('#title_feature_div').length) {
-            title = jquery('#title_feature_div h1').text().trim();
-        }
-
-        var artist = '';
-
-        if (jquery('.author a').length) {
-            artist = jquery('.author a').text().trim();
-        } else if (jquery('.buying').length) {
-            artist = jquery('.buying span a').html().trim();
-        } else if (jquery('#ProductInfoArtistLink').length) {
-            artist = jquery('#ProductInfoArtistLink').text().trim();
-        }
-
-        return {
-            'title': title,
-            'artist': artist,
-            'releaseDate': this.collectReleaseDate(siteSpecificConfig),
-            'label': this.collectLabel(siteSpecificConfig),
-            'tracklist': this.collectTracklist(siteSpecificConfig)
-        };
-    };
-
-    this.collectReleaseDate = function (siteSpecificConfig) {
-        var releaseDate = [];
-
-        var releaseDateElement = jquery('#productDetailsTable li').filter(function () {
-            return siteSpecificConfig.regexReleaseDate.test(jquery(this).text());
-        });
-
-        var releaseDateMatch = siteSpecificConfig.regexReleaseDate.exec(releaseDateElement.text());
-
-        if (releaseDateMatch) {
-            var releaseDateParts = releaseDateMatch[1].replace(/[.,]/g, '').split(' ');
-
-            for (var i = 0; i < siteSpecificConfig.releaseDateOrder.length; i++) {
-                if (i == 1) {
-                    releaseDate.push(siteSpecificConfig.months[releaseDateParts[siteSpecificConfig.releaseDateOrder[i]]]);
-                    continue;
-                }
-
-                releaseDate.push(releaseDateParts[siteSpecificConfig.releaseDateOrder[i]]);
-            }
-        }
-
-        return releaseDate;
+    if (jquery('#productTitle').length) {
+      title = jquery('#productTitle').text().trim()
+    } else if (jquery('.buying').length) {
+      title = jquery('#btAsinTitle span').clone().find('span').remove().end().html().trim()
+    } else if (jquery('[data-feature-name="dmusicProductTitle"]').length) {
+      title = jquery('[data-feature-name="dmusicProductTitle"]').text().trim()
+    } else {
+      console.error('failed to find title')
     }
 
-    this.collectLabel = function (siteSpecificConfig) {
-        var label = '';
+    var artist = ''
 
-        var labelElement = jquery('#productDetailsTable li').filter(function () {
-            return siteSpecificConfig.regexReleaseLabel.test(jquery(this).text());
-        });
-
-        var labelMatch = siteSpecificConfig.regexReleaseLabel.exec(labelElement.text());
-
-        if (labelMatch) {
-            label = labelMatch[1];
-        }
-
-        return label;
+    if (jquery('.author a').length) {
+      artist = jquery('.author a').text().trim()
+    } else if (jquery('.buying').length) {
+      artist = jquery('.buying span a').html().trim()
+    } else if (jquery('[data-feature-name="artistLink"]').length) {
+      artist = jquery('[data-feature-name="artistLink"]').text().trim()
+    } else {
+      console.error('failed to find artist')
     }
 
-    this.collectTracklist = function (siteSpecificConfig) {
-        var tracklist = { 'discs': [] };
-        var disc = 0;
-        var tracks = { 'tracks': [] };
+    return {
+      title,
+      artist,
+      'releaseDate': this.collectReleaseDate(siteSpecificConfig),
+      'label': this.collectLabel(siteSpecificConfig),
+      'tracklist': this.collectTracklist(siteSpecificConfig)
+    }
+  }
 
-        // Amazon has more than one tracklist...
-        if (jquery('#dmusic_tracklist_content').length) {
-            /*
-                Tracklists:
-                One Disk: http://www.amazon.de/01-Fl%C3%BCsterer-Remastered-Gabriel-Burns/dp/B00N29D69I
-                Multiple Disks: http://www.amazon.de/Book-Souls-limited-Deluxe/dp/B00ZVFYVMM
-            */
-            var tracklistContent = jquery('#dmusic_tracklist_content tr');
+  this.collectReleaseDate = function (siteSpecificConfig) {
+    var releaseDate = []
 
-            for (var i = 1; i < tracklistContent.length; i++) {
-                if (tracklistContent[i].id == 'dmusic_tracklist_player_disc_' + (disc + 2)) {
-                    tracklist['discs'][disc] = tracks;
+    var releaseDateElement = jquery('#productDetailsTable li').filter(function () {
+      return siteSpecificConfig.regexReleaseDate.test(jquery(this).text())
+    })
 
-                    disc++;
-                    var tracks = { 'tracks': [] };
+    var releaseDateMatch = siteSpecificConfig.regexReleaseDate.exec(releaseDateElement.text())
 
-                    continue;
-                }
+    if (!releaseDateMatch) {
+      var fallbackMatch = jquery('#productDetailsTable').text().trim().match(/\d{1,2}\s\w{2,15}\s\d{4}/)
+      releaseDateMatch = fallbackMatch ? [42, fallbackMatch[0]] : null
+    }
 
-                var trackDetails = tracklistContent[i].getElementsByTagName('td');
+    if (releaseDateMatch) {
+      var releaseDateParts = releaseDateMatch[1].replace(/[.,]/g, '').split(' ')
 
-                if (trackDetails[0].getElementsByClassName('TrackNumber')[0]) {
-                    tracks['tracks'].push({
-                        'number': trackDetails[0].getElementsByClassName('TrackNumber')[0].textContent.trim(),
-                        'title': trackDetails[1].getElementsByClassName('TitleLink')[0].textContent.trim(),
-                        'length': trackDetails[2].getElementsByTagName("span")[0].textContent.trim()
-                    });
-                } else if (trackDetails[0].getElementsByClassName('AlwaysShowTrackNumberEvenOnHover')[0]) {
-                    tracks['tracks'].push({
-                        'number': trackDetails[0].getElementsByClassName('AlwaysShowTrackNumberEvenOnHover')[0].textContent.trim(),
-                        'title': trackDetails[1].getElementsByClassName('TitleLink')[0].textContent.trim(),
-                        'artist_credit': trackDetails[1].getElementsByClassName('ArtistLink')[0].textContent.trim(),
-                        'length': trackDetails[2].getElementsByTagName("span")[0].textContent.trim()
-                    });
-                }
-            }
-        } else if (jquery('#dmusic_tracklist_player').length) {
-            /*
-                Tracklists:
-                One Disk: http://www.amazon.de/Seventh-Son-Iron-Maiden/dp/B0000251W3
-                Multiple Disks: http://www.amazon.de/Deceiver-Gods-Amon-Amarth/dp/B00CEJ2H6K
-            */
-            var tracklistContent = jquery('#dmusic_tracklist_player .a-row');
-
-            for (var i = 1; i < tracklistContent.length; i++) {
-                if (tracklistContent[i].textContent.trim() == siteSpecificConfig.disc + ": " + (disc + 2)) {
-                    tracklist['discs'][disc] = tracks;
-
-                    disc++;
-                    var tracks = { 'tracks': [] };
-
-                    continue;
-                }
-
-                var trackDetails = tracklistContent[i].textContent.split('. ');
-
-                tracks['tracks'].push({
-                    'number': trackDetails[0].trim(),
-                    'title': trackDetails[1].trim()
-                });
-            }
-        } else if (jquery('#musicTracksFeature').length) {
-            /*
-                Tracklists:
-                One Disk: http://www.amazon.ca/gp/product/B00062PWOQ
-                Multiple Disks: http://www.amazon.ca/The-Book-Souls-Deluxe-Hardcover/dp/B00ZVFYVMM
-            */
-
-            var tracklistContent = jquery('#musicTracksFeature tr');
-
-            for (var i = 0; i < tracklistContent.length; i++) {
-                if (tracklistContent[i].classList.contains('sampleTracksHeader')) {
-                    if (i == 0) {
-                        continue;
-                    }
-
-                    tracklist['discs'][disc] = tracks;
-
-                    disc++;
-                    var tracks = { 'tracks': [] };
-
-                    continue;
-                }
-
-                if (tracklistContent[i].hasAttribute('class')) {
-                    var trackDetails = tracklistContent[i].getElementsByTagName('td')[0].textContent.split('. ');
-
-                    tracks['tracks'].push({
-                        'number': trackDetails[0].trim(),
-                        'title': trackDetails[1].trim()
-                    });
-                }
-            }
+      for (var i = 0; i < siteSpecificConfig.releaseDateOrder.length; i++) {
+        if (i == 1) {
+          releaseDate.push(siteSpecificConfig.months[releaseDateParts[siteSpecificConfig.releaseDateOrder[i]]])
+          continue
         }
 
-        tracklist['discs'][disc] = tracks;
-
-        return tracklist;
+        releaseDate.push(releaseDateParts[siteSpecificConfig.releaseDateOrder[i]])
+      }
     }
+    return releaseDate
+  }
+
+  this.collectLabel = function (siteSpecificConfig) {
+    var label = ''
+    var labelElement = jquery('#productDetailsTable li').filter(function () {
+      return siteSpecificConfig.regexReleaseLabel.test(jquery(this).text())
+    })
+    var labelMatch = siteSpecificConfig.regexReleaseLabel.exec(labelElement.text())
+    if (labelMatch) {
+      label = labelMatch[1]
+    }
+    return label
+  }
+
+  this.collectTracklist = function (siteSpecificConfig) {
+    var tracklist = { 'discs': [] }
+    var disc = 0
+    var tracks = { 'tracks': [] }
+
+    // Amazon has more than one tracklist...
+    if (jquery('#dmusic_tracklist_content').length) {
+      /*
+          Tracklists:
+          One Disk: http://www.amazon.de/01-Fl%C3%BCsterer-Remastered-Gabriel-Burns/dp/B00N29D69I
+          Multiple Disks: http://www.amazon.de/Book-Souls-limited-Deluxe/dp/B00ZVFYVMM
+      */
+      var tracklistContent = jquery('#dmusic_tracklist_content tr')
+
+      for (var i = 1; i < tracklistContent.length; i++) {
+        if (tracklistContent[i].id == 'dmusic_tracklist_player_disc_' + (disc + 2)) {
+          tracklist['discs'][disc] = tracks
+          disc++
+          var tracks = { 'tracks': [] }
+          continue
+        }
+
+        var trackDetails = tracklistContent[i].getElementsByTagName('td')
+
+        if (trackDetails[0].getElementsByClassName('TrackNumber')[0]) {
+          tracks['tracks'].push({
+            'number': trackDetails[0].getElementsByClassName('TrackNumber')[0].textContent.trim(),
+            'title': trackDetails[1].getElementsByClassName('TitleLink')[0].textContent.trim(),
+            'length': trackDetails[2].getElementsByTagName("span")[0].textContent.trim()
+          })
+        } else if (trackDetails[0].getElementsByClassName('AlwaysShowTrackNumberEvenOnHover')[0]) {
+          tracks['tracks'].push({
+            'number': trackDetails[0].getElementsByClassName('AlwaysShowTrackNumberEvenOnHover')[0].textContent.trim(),
+            'title': trackDetails[1].getElementsByClassName('TitleLink')[0].textContent.trim(),
+            'artist_credit': trackDetails[1].getElementsByClassName('ArtistLink')[0].textContent.trim(),
+            'length': trackDetails[2].getElementsByTagName("span")[0].textContent.trim()
+          })
+        }
+      }
+    } else if (jquery('#dmusic_tracklist_player').length) {
+      /*
+          Tracklists:
+          One Disk: http://www.amazon.de/Seventh-Son-Iron-Maiden/dp/B0000251W3
+          Multiple Disks: http://www.amazon.de/Deceiver-Gods-Amon-Amarth/dp/B00CEJ2H6K
+      */
+      var tracklistContent = jquery('#dmusic_tracklist_player .a-row')
+
+      for (var i = 1; i < tracklistContent.length; i++) {
+        if (tracklistContent[i].textContent.trim() == siteSpecificConfig.disc + ": " + (disc + 2)) {
+          tracklist['discs'][disc] = tracks
+          disc++
+          var tracks = { 'tracks': [] }
+          continue
+        }
+
+        var trackDetails = tracklistContent[i].textContent.split('. ')
+
+        tracks['tracks'].push({
+          'number': trackDetails[0].trim(),
+          'title': trackDetails[1].trim()
+        })
+      }
+    } else if (jquery('#musicTracksFeature').length) {
+      /*
+          Tracklists:
+          One Disk: http://www.amazon.ca/gp/product/B00062PWOQ
+          Multiple Disks: http://www.amazon.ca/The-Book-Souls-Deluxe-Hardcover/dp/B00ZVFYVMM
+      */
+      var tracklistContent = jquery('#musicTracksFeature tr')
+
+      for (var i = 0; i < tracklistContent.length; i++) {
+        if (tracklistContent[i].classList.contains('sampleTracksHeader')) {
+          if (i == 0) {
+            continue
+          }
+          tracklist['discs'][disc] = tracks
+          disc++
+          var tracks = { 'tracks': [] }
+          continue
+        }
+
+        if (tracklistContent[i].hasAttribute('class')) {
+          var trackDetails = tracklistContent[i].getElementsByTagName('td')[0].textContent.split('. ')
+          tracks['tracks'].push({
+            'number': trackDetails[0].trim(),
+            'title': trackDetails[1].trim()
+          })
+        }
+      }
+    }
+    tracklist['discs'][disc] = tracks
+    return tracklist
+  }
 });
 
 
 goreMbifa.factory('languageLookupService', function () {
-    var navLocale = jquery('header').attr('class').split(' ')[1];
-
-    return navLocale.substring(9, 11);
+  var navLocale = jquery('header').attr('class').split(' ')[1]
+  return navLocale.substr(-2)
 });
+
 
 goreMbifa.value('siteLookupService', document.domain);
