@@ -1,9 +1,13 @@
 {
-    "devDependencies": {
-        "jquery": "^2.2.3",
-        "angular": "^1.5.5",
-        "grunt": "^1.0.1",
-        "grunt-contrib-watch": "^1.0.0",
-        "grunt-contrib-concat": "^1.0.1"
-    }
+  "devDependencies": {
+    "jquery": "^2.2.3",
+    "angular": "^1.5.5",
+    "grunt": "^1.0.1",
+    "grunt-contrib-watch": "^1.0.0",
+    "grunt-contrib-concat": "^1.0.1"
+  },
+  "scripts": {
+    "build": "grunt concat",
+    "dev": "grunt watch"
+  }
 }
