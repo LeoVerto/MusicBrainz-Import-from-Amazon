@@ -1,7 +1,7 @@
 ﻿goreMbifa.directive('goreMbifaBootstrap', function () {
-    return {
-        template:
-           `<style>
+  return {
+    template:
+      `<style>
                 #gorembifa-app {
                     border: 1px solid #ddd;
                     border-radius: 4px;
@@ -86,5 +86,5 @@
                     </div>
                 </div>
             </div>`
-    };
-});
+  }
+})
