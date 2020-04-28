@@ -1,4 +1,4 @@
-goreMbifa.service('dataCollectorService', function (config, siteLookupService, languageLookupService) {
+﻿goreMbifa.service('dataCollectorService', function (config, siteLookupService, languageLookupService) {
   this.collectData = function () {
     var siteSpecificConfig = config.sites[siteLookupService].languages[languageLookupService]
 
@@ -43,6 +43,11 @@ goreMbifa.service('dataCollectorService', function (config, siteLookupService, l
     })
 
     var releaseDateMatch = siteSpecificConfig.regexReleaseDate.exec(releaseDateElement.text())
+
+    if (!releaseDateMatch) {
+      var fallbackMatch = jquery('#productDetailsTable').text().trim().match(/\d{1,2}\s\w{2,15}\s\d{4}/)
+      releaseDateMatch = fallbackMatch ? [42, fallbackMatch[0]] : null
+    }
 
     if (releaseDateMatch) {
       var releaseDateParts = releaseDateMatch[1].replace(/[.,]/g, '').split(' ')
