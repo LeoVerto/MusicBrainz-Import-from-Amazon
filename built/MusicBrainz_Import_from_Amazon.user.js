@@ -2,9 +2,10 @@
 // @name        MusicBrainz: Import from Amazon
 // @namespace   https://github.com/Shuunen/MusicBrainz-Import-from-Amazon
 // @include     *://www.amazon.*
-// @version     0.98.6
+// @version     0.99.0
 // @grant       none
-// @author      Gore (based on github.com/dufferzafar/Userscripts, github.com/Goram/MusicBrainz-Import-from-Amazon & LeoVerto/MusicBrainz-Import-from-Amazon)// @description Import releases from Amazon
+// @author      LeoVerto & Shuunen (based on github.com/dufferzafar/Userscripts, github.com/Goram/MusicBrainz-Import-from-Amazon)
+// @description Import releases from Amazon
 // @require     https://code.jquery.com/jquery-2.2.3.min.js
 // @require     https://code.jquery.com/ui/1.11.4/jquery-ui.min.js
 // @require     https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular.min.js
